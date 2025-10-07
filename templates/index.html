@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Главная — Автозапчасти{% endblock %}
+{% block meta_description %}Продажа тормозных систем и автозапчастей. Бесплатная консультация и доставка по России.{% endblock %}
+
+{% block content %}
+  <div class="hero">
+    <h1>Тормозные системы напрямую от заводов производителей</h1>
+    <p>Быстрая доставка, официальная продукция, поддержка 24/7</p>
+    <a href="{{ url_for('catalog') }}" class="btn">Перейти в каталог</a>
+  </div>
+
+  <section class="categories">
+    <h2>Категории</h2>
+    <div class="cats-grid">
+      {% for cat in categories %}
+      <a class="cat-card" href="{{ url_for('category_page', slug=cat.slug) }}">
+        {{ cat.name }}
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="popular-products">
+    <h2>Популярные позиции</h2>
+    <div class="prod-grid">
+      {% for p in products %}
+      <div class="prod-card">
+        {% if p.image %}
+        <img src="{{ p.image }}" alt="{{ p.name }}">
+        {% endif %}
+        <h3><a href="{{ url_for('product_page', slug=p.slug) }}">{{ p.name }}</a></h3>
+        <p>{{ "%.2f"|format(p.price) }} ₽</p>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

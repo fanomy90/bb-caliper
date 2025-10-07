@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ category.name }} — Категория{% endblock %}
+{% block content %}
+  <h1>{{ category.name }}</h1>
+  <div class="prod-grid">
+    {% for p in products %}
+    <div class="prod-card">
+      {% if p.image %}
+      <img src="{{ p.image }}" alt="{{ p.name }}">
+      {% endif %}
+      <h3><a href="{{ url_for('product_page', slug=p.slug) }}">{{ p.name }}</a></h3>
+      <p>{{ "%.2f"|format(p.price) }} ₽</p>
+    </div>
+    {% endfor %}
+  </div>
+{% endblock %}

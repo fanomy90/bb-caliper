@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block meta_description %}{{ product.description[:150] }}{% endblock %}
+{% block content %}
+  <div class="product-detail">
+    <h1>{{ product.name }}</h1>
+    {% if product.image %}
+    <img src="{{ product.image }}" alt="{{ product.name }}">
+    {% endif %}
+    <p>{{ product.description }}</p>
+    <p><strong>Цена: </strong>{{ "%.2f"|format(product.price) }} ₽</p>
+    <!-- Можно добавить кнопку "Заказать" или форму заявки -->
+  </div>
+{% endblock %}
