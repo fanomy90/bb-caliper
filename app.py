@@ -4,6 +4,7 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from config import Config
 from models import db, Product, Category
+import logging
 
 
 def create_app():
@@ -75,6 +76,12 @@ def create_app():
         return jsonify({"status": "ok"})
 
     return app
+
+# logging.basicConfig(
+#     filename="app.log",
+#     level=logging.INFO,
+#     format="%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]"
+# )
 
 if __name__ == '__main__':
     app = create_app()
