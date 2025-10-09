@@ -11,11 +11,29 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    db.init_app(app)
+    # Формат логов
+    formatter = logging.Formatter(
+        "%(asctime)s [%(levelname)s] %(message)s [in %(pathname)s:%(lineno)d]"
+    )
 
-    admin = Admin(app, name="Автозапчасти Admin", template_mode='bootstrap4')
-    admin.add_view(ModelView(Category, db.session))
-    admin.add_view(ModelView(Product, db.session))
+    # 1️⃣ — Лог в файл
+    file_handler = logging.FileHandler("app.log", encoding="utf-8")
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(formatter)
+
+    # 2️⃣ — Лог в консоль
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
+
+    # Добавляем оба обработчика
+    app.logger.setLevel(logging.INFO)
+    app.logger.addHandler(file_handler)
+    app.logger.addHandler(console_handler)
+
+    app.logger.info("🚀 Приложение запущено")
+
+    db.init_app(app)
 
     @app.route('/')
     def index():
@@ -76,12 +94,6 @@ def create_app():
         return jsonify({"status": "ok"})
 
     return app
-
-# logging.basicConfig(
-#     filename="app.log",
-#     level=logging.INFO,
-#     format="%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]"
-# )
 
 if __name__ == '__main__':
     app = create_app()
