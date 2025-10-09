@@ -2,38 +2,31 @@ from flask import Flask, render_template, abort, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
+from flask_admin.form import ImageUploadField
 from config import Config
 from models import db, Product, Category
 import logging
-
+import os
+from admin import ProductAdmin
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-
-    # Формат логов
-    formatter = logging.Formatter(
-        "%(asctime)s [%(levelname)s] %(message)s [in %(pathname)s:%(lineno)d]"
+    # логирование в файл
+    logging.basicConfig(
+        filename="app.log",
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]"
     )
-
-    # 1️⃣ — Лог в файл
-    file_handler = logging.FileHandler("app.log", encoding="utf-8")
-    file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(formatter)
-
-    # 2️⃣ — Лог в консоль
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(formatter)
-
-    # Добавляем оба обработчика
-    app.logger.setLevel(logging.INFO)
-    app.logger.addHandler(file_handler)
-    app.logger.addHandler(console_handler)
-
-    app.logger.info("🚀 Приложение запущено")
+    logger = logging.getLogger(__name__)
+    logger.info("🚀 Приложение запущено")
 
     db.init_app(app)
+
+    admin = Admin(app, name="Автозапчасти Admin", template_mode='bootstrap4')
+    admin.add_view(ModelView(Category, db.session))
+    # admin.add_view(ModelView(Product, db.session))
+    admin.add_view(ProductAdmin(Product, db.session))
 
     @app.route('/')
     def index():

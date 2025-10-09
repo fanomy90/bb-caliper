@@ -1,4 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask import url_for
+from werkzeug.utils import cached_property
 
 db = SQLAlchemy()
 
@@ -20,11 +22,17 @@ class Product(db.Model):
     name = db.Column(db.String(200), nullable=False)
     slug = db.Column(db.String(200), unique=True, nullable=False)
     price = db.Column(db.Float, nullable=False)
-    image = db.Column(db.String(300))
+    image = db.Column(db.String(300)) # путь вида 'products/filename.jpg'
     description = db.Column(db.Text)
     is_available = db.Column(db.Boolean, default=True)
 
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
+    #гибкий путь до картинок
+    @cached_property
+    def image_url(self):
+        if self.image:
+            return url_for('static', filename=f'img/products/{self.image}')
+        return url_for('static', filename='img/no-photo.png')
 
     def __repr__(self):
         return f"{self.name}"  # ✅ строка, не tuple

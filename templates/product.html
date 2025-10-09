@@ -1,14 +1,90 @@
 {% extends "base.html" %}
-{% block title %}{{ product.name }}{% endblock %}
-{% block meta_description %}{{ product.description[:150] }}{% endblock %}
+{% block title %}{{ product.name }} — BB-Caliper{% endblock %}
+
 {% block content %}
-  <div class="product-detail">
-    <h1>{{ product.name }}</h1>
-    {% if product.image %}
-    <img src="{{ product.image }}" alt="{{ product.name }}">
-    {% endif %}
-    <p>{{ product.description }}</p>
-    <p><strong>Цена: </strong>{{ "%.2f"|format(product.price) }} ₽</p>
-    <!-- Можно добавить кнопку "Заказать" или форму заявки -->
+<div class="container my-5">
+  <div class="row g-4">
+    <!-- Изображение товара -->
+    <div class="col-md-5 text-center">
+      <img src="{{ product.image_url }}" alt="{{ product.name }}"
+           class="img-fluid rounded shadow-sm" alt="{{ product.name }}">
+      <!-- <img src="{{ url_for('static', filename='img/products/' ~ product.image) if product.image else url_for('static', filename='img/products/no-photo.png') }}"
+           class="img-fluid rounded shadow-sm" alt="{{ product.name }}"> -->
+    </div>
+
+    <!-- Описание товара -->
+    <div class="col-md-7">
+      <h1 class="h3 mb-3 fw-bold">{{ product.name }}</h1>
+
+      {% if product.category %}
+      <p class="text-muted mb-2">
+        Категория: <a href="{{ url_for('category_page', slug=product.category.slug) }}">{{ product.category.name }}</a>
+      </p>
+      {% endif %}
+
+      <p class="lead mb-4">{{ product.description or "Описание скоро появится." }}</p>
+
+      <h2 class="h4 text-success mb-3">
+        {{ "%.2f"|format(product.price) }} ₽
+      </h2>
+
+      <div class="d-flex gap-3">
+        <button class="btn btn-primary px-4" id="buyBtn">
+          <i class="bi bi-cart"></i> Купить
+        </button>
+        <a href="{{ url_for('catalog') }}" class="btn btn-outline-secondary">Назад в каталог</a>
+      </div>
+    </div>
   </div>
+</div>
+
+<!-- Модальное окно заявки -->
+<div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="orderModalLabel">Оставить заявку</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="orderForm">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="name" class="form-label">Ваше имя</label>
+            <input type="text" class="form-control" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label for="phone" class="form-label">Телефон</label>
+            <input type="text" class="form-control" name="phone" required>
+          </div>
+          <input type="hidden" name="message" value="Покупка: {{ product.name }}">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" class="btn btn-success">Отправить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById("buyBtn").addEventListener("click", () => {
+  const modal = new bootstrap.Modal(document.getElementById("orderModal"));
+  modal.show();
+});
+
+document.getElementById("orderForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const res = await fetch("/send", { method: "POST", body: formData });
+  const data = await res.json();
+  if (data.status === "ok") {
+    alert("Заявка отправлена! Мы свяжемся с вами в ближайшее время.");
+    bootstrap.Modal.getInstance(document.getElementById("orderModal")).hide();
+  }
+});
+</script>
 {% endblock %}
