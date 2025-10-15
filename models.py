@@ -21,11 +21,15 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
     slug = db.Column(db.String(200), unique=True, nullable=False)
+    brand = db.Column(db.String(200), nullable=False)
+    article = db.Column(db.String(200), nullable=False)
     price = db.Column(db.Float, nullable=False)
     image = db.Column(db.String(300)) # путь вида 'products/filename.jpg'
     description = db.Column(db.Text)
+    characteristics = db.Column(db.String(200), nullable=False)
+    
     is_available = db.Column(db.Boolean, default=True)
-
+    is_favorites = db.Column(db.Boolean, default=True)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
     #гибкий путь до картинок
     @cached_property

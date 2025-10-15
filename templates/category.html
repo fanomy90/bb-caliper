@@ -3,14 +3,14 @@
 {% block content %}
   <h1>{{ category.name }}</h1>
   <div class="prod-grid">
-    {% for p in products %}
+    {% for product in products %}
     <div class="prod-card">
-      {% if p.image %}
-      <img src="{{ p.image_url }}" alt="{{ p.name }}">
-      <!-- <img src="{{ p.image }}" alt="{{ p.name }}"> -->
+      {% if product.image %}
+      <img src="{{ product.image_url }}" alt="{{ product.name }}">
+      <!-- <img src="{{ product.image }}" alt="{{ product.name }}"> -->
       {% endif %}
-      <h3><a href="{{ url_for('product_page', slug=p.slug) }}">{{ p.name }}</a></h3>
-      <p>{{ "%.2f"|format(p.price) }} ₽</p>
+      <h3><a href="{{ url_for('product_page', slug=product.slug) }}">{{ product.name }}</a></h3>
+      <p>{{ "%.2f"|format(product.price) }} ₽</p>
     </div>
     {% endfor %}
   </div>
