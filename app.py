@@ -85,6 +85,66 @@ def create_app():
         print(f"[Заявка] {name} ({phone}): {message}")  # пока просто логируем
         # Можно добавить отправку письма или в Telegram
         return jsonify({"status": "ok"})
+    
+    # маршрут для обработки избранного
+    # @app.route('/favorites')
+    # def favorites():
+    #     return render_template('favorites.html')
+    
+    # @app.route("/favorites")
+    # def favorites():
+    #     ids = request.args.get("ids", "")
+    #     if not ids:
+    #         products = []
+    #     else:
+    #         id_list = [int(i) for i in ids.split(",") if i.isdigit()]
+    #         products = Product.query.filter(Product.id.in_(id_list), Product.is_available == True).all()
+    #     return render_template("favorites.html", products=products)
+    
+    # @app.route("/favorites")
+    # def favorites():
+    #     ids = request.args.get("ids", "")
+    #     if not ids:
+    #         return "<p>Товары не найдены.</p>"
+    #     id_list = [int(i) for i in ids.split(",") if i.isdigit()]
+    #     products = Product.query.filter(Product.id.in_(id_list), Product.is_available==True).all()
+    #     return render_template("_product_cards.html", products=products)
+    
+    @app.route('/favorites')
+    def favorites_page():
+        return render_template("favorites.html")
+    @app.route("/favorites/cards")
+    def favorites_cards():
+        ids = request.args.get("ids", "")
+        if not ids:
+            return "<p>Товары не найдены.</p>"
+        try:
+            id_list = [int(i) for i in ids.split(",") if i.isdigit()]
+        except ValueError:
+            return "<p>Неверный формат ID.</p>"
+        products = Product.query.filter(Product.id.in_(id_list), Product.is_available==True).all()
+        if not products:
+            return "<p>Товары не найдены.</p>"
+        return render_template("_product_cards.html", products=products)
+
+
+
+    
+    @app.route('/api/product/<int:product_id>')
+    def api_product(product_id):
+        product = Product.query.get(product_id)
+        if not product:
+            return jsonify({"status": "error", "message": "Товар не найден"}), 404
+        return jsonify({
+            "status": "ok",
+            "product": {
+                "id": product.id,
+                "name": product.name,
+                "slug": product.slug,
+                "price": product.price,
+                "image_url": product.image_url
+            }
+        })
 
     return app
 

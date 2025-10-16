@@ -6,7 +6,7 @@
   <title>{% block title %}Автозапчасти{% endblock %}</title>
   <meta name="description" content="{% block meta_description %}{% endblock %}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
 
 </head>
 <body>
@@ -21,6 +21,8 @@
         <a href="{{ url_for('reviews') }}">Отзывы</a>
         <a href="{{ url_for('catalog') }}">Каталог</a>
         <a href="{{ url_for('contact') }}">Контакты</a>
+        <a href="{{ url_for('favorites_page') }}">Избранное</a>
+        
       </div>
     </nav>
   </header>
