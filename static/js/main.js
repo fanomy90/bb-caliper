@@ -178,4 +178,39 @@ document.addEventListener("DOMContentLoaded", function() {
     observer.observe(card);
   });
 
+// новая обработка кнопок избранное
+  document.querySelectorAll(".favoriteBtn").forEach(btn => {
+    const productId = String(btn.dataset.id);
+
+    function updateButtonState() {
+      let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+      btn.classList.remove("btn-outline-warning", "btn-warning");
+
+      if (favorites.includes(productId)) {
+        btn.textContent = "★ В избранном";
+        btn.classList.add("btn-warning");
+      } else {
+        btn.textContent = "☆ Добавить в избранное";
+        btn.classList.add("btn-outline-warning");
+      }
+    }
+    updateButtonState();
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+
+      if (favorites.includes(productId)) {
+        favorites = favorites.filter(id => id !== productId);
+      } else {
+        favorites.push(productId);
+      }
+
+      localStorage.setItem("favorites", JSON.stringify(favorites));
+      updateButtonState();
+
+      if (window.location.pathname === "/favorites") {
+        loadFavorites();
+      }
+    });
+  });
 });

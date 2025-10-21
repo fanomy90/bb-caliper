@@ -1,22 +1,26 @@
-{% for p in products %}
+{% for product in products %}
 <div class="col-md-4 prod-card">
   <div class="card">
+  
     <!-- Изображение товара -->
-    <img src="{{ p.image_url }}" class="card-img-top" alt="{{ p.name }}">
+    <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
 
     <div class="card-body">
       <!-- Название и ссылка на товар -->
       <h5 class="card-title">
-        <a href="{{ url_for('product_page', slug=p.slug) }}">{{ p.name }}</a>
+        <a href="{{ url_for('product_page', slug=product.slug) }}">{{ product.name }}</a>
       </h5>
 
       <!-- Цена -->
-      <p class="card-text">{{ "%.2f"|format(p.price) }} ₽</p>
+      <p class="card-text">{{ "%.2f"|format(product.price) }} ₽</p>
 
       <!-- Кнопка "Избранное" -->
       <button 
         class="btn btn-outline-warning favoriteBtn" 
-        data-id="{{ p.id }}">
+        data-id="{{ product.id }}">
+        ☆ Добавить в избранное
+      </button>
+      <button class="btn btn-outline-warning" id="favoriteBtn" data-id="{{ product.id }}">
         ☆ Добавить в избранное
       </button>
     </div>
