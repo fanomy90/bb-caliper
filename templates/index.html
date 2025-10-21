@@ -26,6 +26,9 @@
     <div class="prod-grid">
       {% for product in products %}
       <div class="prod-card">
+        <button class="btn btn-outline-warning favoriteBtn" data-id="{{ product.id }}">
+          ☆ Добавить в избранное
+        </button>
         {% if product.image %}
         <img src="{{ product.image_url }}" alt="{{ product.name }}">
         {% endif %}

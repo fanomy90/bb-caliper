@@ -1,216 +1,113 @@
 // static/js/main.js
-
-document.addEventListener("DOMContentLoaded", function() {
-  // обработка кнопки избранное
-  const btn = document.getElementById("favoriteBtn");
-  if (btn) {
-    const productId = String(btn.dataset.id);
-
-    function updateButtonState() {
-      let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
-      btn.classList.remove("btn-outline-warning", "btn-warning");
-
-      if (favorites.includes(productId)) {
-        btn.textContent = "★ В избранном";
-        btn.classList.add("btn-warning");
-      } else {
-        btn.textContent = "☆ Добавить в избранное";
-        btn.classList.add("btn-outline-warning");
-      }
+(function () {
+  // --- Утилиты ---
+  function getFavorites() {
+    try {
+      return JSON.parse(localStorage.getItem("favorites") || "[]");
+    } catch (e) {
+      console.warn("Ошибка парсинга favorites:", e);
+      return [];
     }
-
-    // Проверяем состояние при загрузке страницы
-    updateButtonState();
-
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
-
-      if (favorites.includes(productId)) {
-        favorites = favorites.filter(id => id !== productId); // удалить
-      } else {
-        favorites.push(productId); // добавить
-      }
-
-      localStorage.setItem("favorites", JSON.stringify(favorites));
-      updateButtonState();
-
-      // Если мы на странице избранного, обновляем список товаров
-      if (window.location.pathname === "/favorites") {
-        loadFavorites(); // функция загрузки карточек (см. ниже)
-      }
-    });
+  }
+  function saveFavorites(arr) {
+    localStorage.setItem("favorites", JSON.stringify(arr));
   }
 
-  // ==== Страница Избранное ====
+  // --- Обновление состояния конкретной кнопки ---
+  function updateButtonVisual(btn) {
+    if (!btn) return;
+    const id = String(btn.dataset.id);
+    const favs = getFavorites();
+    btn.classList.remove("btn-outline-warning", "btn-warning");
+    if (favs.includes(id)) {
+      btn.textContent = "★ В избранном";
+      btn.classList.add("btn-warning");
+    } else {
+      btn.textContent = "☆ Добавить в избранное";
+      btn.classList.add("btn-outline-warning");
+    }
+  }
+
+  // --- Обновить все кнопки на странице ---
+  function updateAllFavoriteButtons() {
+    document.querySelectorAll(".favoriteBtn").forEach(updateButtonVisual);
+  }
+
+  // --- Делегированный обработчик кликов на favoriteBtn ---
+  document.addEventListener("click", function (e) {
+    const btn = e.target.closest && e.target.closest(".favoriteBtn");
+    if (!btn) return; // не наша кнопка
+
+    e.preventDefault();
+    const id = String(btn.dataset.id);
+    if (!id) return;
+
+    let favs = getFavorites();
+    if (favs.includes(id)) {
+      favs = favs.filter(x => x !== id);
+    } else {
+      favs.push(id);
+    }
+    saveFavorites(favs);
+
+    // обновляем вид кнопки
+    updateButtonVisual(btn);
+
+    // если мы на странице /favorites — удаляем карточку
+    if (window.location.pathname.startsWith("/favorites")) {
+      const card = btn.closest(".prod-card");
+      if (card) card.remove();
+
+      // если теперь пусто — покажем сообщение
+      const remaining = getFavorites();
+      if (!remaining || remaining.length === 0) {
+        const container = document.getElementById("favoritesContainer");
+        if (container) container.innerHTML = "<p>В избранном теперь пусто.</p>";
+      }
+    }
+  });
+
+  // --- Загружает карточки для страницы /favorites ---
   async function loadFavorites() {
     const container = document.getElementById("favoritesContainer");
     if (!container) return;
 
-    let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
-    if (favorites.length === 0) {
+    const favorites = getFavorites();
+    if (!favorites || favorites.length === 0) {
       container.innerHTML = "<p>Вы пока не добавили товары в избранное.</p>";
       return;
     }
 
+    container.innerHTML = "<p>Загрузка избранных товаров...</p>";
     const query = favorites.join(",");
     try {
-      const res = await fetch(`/favorites/cards?ids=${query}`);
-      if (!res.ok) throw new Error("Ошибка загрузки товаров");
-
+      const res = await fetch(`/favorites/cards?ids=${encodeURIComponent(query)}`);
+      if (!res.ok) throw new Error("HTTP " + res.status);
       const html = await res.text();
-      container.innerHTML = html || "<p>Товары не найдены.</p>";
+
+      // мы просто вставляем HTML карточек в контейнер
+      // (этот HTML должен содержать элементы .prod-card и кнопки .favoriteBtn)
+      container.innerHTML = html;
+
+      // после вставки — обновим визуальное состояние всех кнопок
+      updateAllFavoriteButtons();
     } catch (err) {
-      console.error(err);
+      console.error("Ошибка загрузки favorites cards:", err);
       container.innerHTML = "<p>Ошибка загрузки товаров.</p>";
     }
   }
 
-  // Если мы на странице избранного — сразу загрузить карточки
-  if (window.location.pathname === "/favorites") {
-    loadFavorites();
-  }
-
-//   const btn = document.getElementById("favoriteBtn");
-//   if (!btn) return;
-
-//   const productId = String(btn.dataset.id);
-
-//   function getFavorites() {
-//     return JSON.parse(localStorage.getItem("favorites") || "[]");
-//   }
-
-//   function saveFavorites(favs) {
-//     localStorage.setItem("favorites", JSON.stringify(favs));
-//   }
-
-//   function updateButtonState() {
-//     const favorites = getFavorites();
-//     btn.classList.remove("btn-outline-warning", "btn-warning");
-//     if (favorites.includes(productId)) {
-//       btn.innerHTML = "★ В избранном";
-//       btn.classList.add("btn-warning");
-//     } else {
-//       btn.innerHTML = "☆ Добавить в избранное";
-//       btn.classList.add("btn-outline-warning");
-//     }
-//   }
-
-//   // Первичная инициализация
-//   updateButtonState();
-
-//   btn.addEventListener("click", (e) => {
-//     e.preventDefault();
-
-//     let favorites = getFavorites();
-
-//     if (favorites.includes(productId)) {
-//       favorites = favorites.filter(id => id !== productId);
-//     } else {
-//       favorites.push(productId);
-//     }
-
-//     saveFavorites(favorites);
-//     updateButtonState();
-
-//     console.log("Сохраняем избранное:", favorites);
-//     console.log("Проверка:", localStorage.getItem("favorites"));
-//   });
-
-
-
-  /* === 1. Плавная прокрутка по якорям === */
-  const links = document.querySelectorAll('a[href^="#"]');
-  links.forEach(link => {
-    link.addEventListener("click", function(e) {
-      const target = document.querySelector(this.getAttribute("href"));
-      if (target) {
-        e.preventDefault();
-        window.scrollTo({
-          top: target.offsetTop - 80,
-          behavior: "smooth"
-        });
-      }
-    });
-  });
-
-  /* === 2. Обработка формы обратной связи === */
-  const form = document.querySelector("#contact-form");
-  if (form) {
-    form.addEventListener("submit", async function(e) {
-      e.preventDefault();
-
-      const formData = new FormData(form);
-      const response = await fetch("/send", {
-        method: "POST",
-        body: formData
-      });
-
-      if (response.ok) {
-        alert("Спасибо! Ваша заявка отправлена.");
-        form.reset();
-      } else {
-        alert("Ошибка при отправке. Попробуйте позже.");
-      }
-    });
-  }
-
-  /* === 3. Мобильное меню === */
-  const burger = document.querySelector(".burger");
-  const nav = document.querySelector("nav");
-  if (burger && nav) {
-    burger.addEventListener("click", () => {
-      nav.classList.toggle("active");
-      burger.classList.toggle("active");
-    });
-  }
-
-  /* === 4. Плавное появление карточек при прокрутке === */
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("visible");
-      }
-    });
-  }, { threshold: 0.2 });
-
-  document.querySelectorAll(".prod-card").forEach(card => {
-    observer.observe(card);
-  });
-
-// новая обработка кнопок избранное
-  document.querySelectorAll(".favoriteBtn").forEach(btn => {
-    const productId = String(btn.dataset.id);
-
-    function updateButtonState() {
-      let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
-      btn.classList.remove("btn-outline-warning", "btn-warning");
-
-      if (favorites.includes(productId)) {
-        btn.textContent = "★ В избранном";
-        btn.classList.add("btn-warning");
-      } else {
-        btn.textContent = "☆ Добавить в избранное";
-        btn.classList.add("btn-outline-warning");
-      }
+  // --- При загрузке страницы: инициализация ---
+  document.addEventListener("DOMContentLoaded", function () {
+    // Если мы на странице favorites — загрузим карточки
+    if (window.location.pathname.startsWith("/favorites")) {
+      loadFavorites();
+    } else {
+      // На прочих страницах — обновим визуал кнопок, если карточки уже в DOM
+      updateAllFavoriteButtons();
     }
-    updateButtonState();
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
-
-      if (favorites.includes(productId)) {
-        favorites = favorites.filter(id => id !== productId);
-      } else {
-        favorites.push(productId);
-      }
-
-      localStorage.setItem("favorites", JSON.stringify(favorites));
-      updateButtonState();
-
-      if (window.location.pathname === "/favorites") {
-        loadFavorites();
-      }
-    });
   });
-});
+
+  // Экспорт (если надо)
+  window._bbcaliper_fav = { getFavorites, saveFavorites, loadFavorites, updateAllFavoriteButtons };
+})();

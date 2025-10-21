@@ -7,9 +7,12 @@
     <!-- Изображение товара -->
     <div class="col-md-5 text-center">
     
-      <button class="btn btn-outline-warning" id="favoriteBtn" data-id="{{ product.id }}">
+
+      <button class="btn btn-outline-warning favoriteBtn" data-id="{{ product.id }}">
       ☆ Добавить в избранное
       </button>
+
+      
 
       <img src="{{ product.image_url }}" alt="{{ product.name }}"
            class="img-fluid rounded shadow-sm" alt="{{ product.name }}">

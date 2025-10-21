@@ -14,36 +14,6 @@
 
 {% block scripts %}
 <script>
-document.addEventListener("DOMContentLoaded", async () => {
-  const container = document.getElementById("favoritesContainer");
 
-  // Получаем избранные ID из localStorage
-  let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
-
-  if (favorites.length === 0) {
-    container.innerHTML = "<p>Вы пока не добавили товары в избранное.</p>";
-    return;
-  }
-
-  const query = favorites.join(",");
-  const res = await fetch(`/favorites/cards?ids=${query}`);
-
-  if (!res.ok) {
-    container.innerHTML = "<p>Ошибка загрузки товаров.</p>";
-    return;
-  }
-
-  const html = await res.text();
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
-  const products = doc.querySelectorAll(".prod-card");
-
-  if (products.length > 0) {
-    container.innerHTML = "";
-    products.forEach(p => container.appendChild(p));
-  } else {
-    container.innerHTML = "<p>Товары не найдены.</p>";
-  }
-});
 </script>
 {% endblock %}
