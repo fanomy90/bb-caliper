@@ -85,31 +85,7 @@ def create_app():
         print(f"[Заявка] {name} ({phone}): {message}")  # пока просто логируем
         # Можно добавить отправку письма или в Telegram
         return jsonify({"status": "ok"})
-    
-    # маршрут для обработки избранного
-    # @app.route('/favorites')
-    # def favorites():
-    #     return render_template('favorites.html')
-    
-    # @app.route("/favorites")
-    # def favorites():
-    #     ids = request.args.get("ids", "")
-    #     if not ids:
-    #         products = []
-    #     else:
-    #         id_list = [int(i) for i in ids.split(",") if i.isdigit()]
-    #         products = Product.query.filter(Product.id.in_(id_list), Product.is_available == True).all()
-    #     return render_template("favorites.html", products=products)
-    
-    # @app.route("/favorites")
-    # def favorites():
-    #     ids = request.args.get("ids", "")
-    #     if not ids:
-    #         return "<p>Товары не найдены.</p>"
-    #     id_list = [int(i) for i in ids.split(",") if i.isdigit()]
-    #     products = Product.query.filter(Product.id.in_(id_list), Product.is_available==True).all()
-    #     return render_template("_product_cards.html", products=products)
-    
+    # обработка избранного
     @app.route('/favorites')
     def favorites_page():
         return render_template("favorites.html")
@@ -127,6 +103,23 @@ def create_app():
             return "<p>Товары не найдены.</p>"
         return render_template("_product_cards.html", products=products)
 
+    # Обработка корзины
+    @app.route('/carts')
+    def carts_page():
+        return render_template("carts.html")
+    @app.route("/carts/cards")
+    def carts_cards():
+        ids = request.args.get("ids", "")
+        if not ids:
+            return "<p>Товары не найдены.</p>"
+        try:
+            id_list = [int(i) for i in ids.split(",") if i.isdigit()]
+        except ValueError:
+            return "<p>Неверный формат ID.</p>"
+        products = Product.query.filter(Product.id.in_(id_list), Product.is_available==True).all()
+        if not products:
+            return "<p>Товары не найдены.</p>"
+        return render_template("_product_cards.html", products=products)
 
 
     

@@ -40,5 +40,8 @@ nav .container a {
 #favoriteBtn {
   transition: all 0.2s ease-in-out;
 }
+#cartBtn {
+  transition: all 0.2s ease-in-out;
+}
 
 /* и др. */
