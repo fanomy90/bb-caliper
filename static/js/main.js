@@ -31,22 +31,27 @@
     const favs = getFavorites();
     const carts = getСarts();
     // --- Кнопки избранного ---
-    btn.classList.remove("btn-outline-warning", "btn-warning");
-    if (favs.includes(id)) {
-      btn.textContent = "★ В избранном";
-      btn.classList.add("btn-warning");
-    } else {
-      btn.textContent = "☆ Добавить в избранное";
-      btn.classList.add("btn-outline-warning");
+    if (btn.classList.contains("favoriteBtn")) {
+      btn.classList.remove("btn-outline-warning", "btn-warning");
+      if (favs.includes(id)) {
+        btn.textContent = "★ В избранном";
+        btn.classList.add("btn-warning");
+      } else {
+        btn.textContent = "☆ Добавить в избранное";
+        btn.classList.add("btn-outline-warning");
+      }
     }
+
     // --- Кнопки корзины ---
-    btn.classList.remove("btn-outline-warning", "btn-warning");
-    if (carts.includes(id)) {
-      btn.textContent = "★ В корзине";
-      btn.classList.add("btn-warning");
-    } else {
-      btn.textContent = "☆ Добавить в корзину";
-      btn.classList.add("btn-outline-warning");
+    if (btn.classList.contains("cartBtn")) {
+      btn.classList.remove("btn-outline-warning", "btn-warning");
+      if (carts.includes(id)) {
+        btn.textContent = "★ В корзине";
+        btn.classList.add("btn-warning");
+      } else {
+        btn.textContent = "☆ Добавить в корзину";
+        btn.classList.add("btn-outline-warning");
+      }
     }
   }
 
@@ -149,6 +154,7 @@
 
       // после вставки — обновим визуальное состояние всех кнопок
       updateAllFavoriteButtons();
+      updateAllCartButtons();
     } catch (err) {
       console.error("Ошибка загрузки favorites cards:", err);
       container.innerHTML = "<p>Ошибка загрузки товаров.</p>";
@@ -178,6 +184,7 @@
       container.innerHTML = html;
 
       // после вставки — обновим визуальное состояние всех кнопок
+      updateAllFavoriteButtons();
       updateAllCartButtons();
     } catch (err) {
       console.error("Ошибка загрузки carts cards:", err);
@@ -189,11 +196,15 @@
   document.addEventListener("DOMContentLoaded", function () {
     // Если мы на странице favorites — загрузим карточки
     if (window.location.pathname.startsWith("/favorites")) {
-      loadFavorites();
+      loadFavorites().then(() => {
+        updateAllCartButtons();
+      });
     }
     // Если мы на странице carts — загрузим карточки
     if (window.location.pathname.startsWith("/carts")) {
-      loadCarts();
+      loadCarts().then(() => {
+        updateAllFavoriteButtons
+      });
     }
     else {
       // На прочих страницах — обновим визуал кнопок, если карточки уже в DOM
