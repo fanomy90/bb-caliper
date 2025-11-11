@@ -32,6 +32,10 @@ nav .container a {
   padding: 15px;
   flex: 1 1 calc(33% - 40px);
   box-sizing: border-box;
+  /* новые стили для корзины */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .prod-card img {
@@ -44,4 +48,99 @@ nav .container a {
   transition: all 0.2s ease-in-out;
 }
 
-/* и др. */
+/* Стиль изображения внутри карточек товаров в корзине */
+
+#cartsContainer .prod-card img {
+  width: 120px;     /* или 100px, подбери визуально */
+  height: auto;
+  object-fit: contain;
+  margin-right: 10px;
+}
+
+/* Чтобы карточки были аккуратнее выровнены */
+#cartsContainer .prod-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border-bottom: 1px solid #eee;
+  padding: 10px 0;
+}
+
+/* новые стили для карточек товаров в избранном и корзине */
+/* === Горизонтальное расположение карточки товара === */
+#cartsContainer .prod-card,
+#favoritesContainer .prod-card {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 20px;
+  border-bottom: 1px solid #eee;
+  padding: 10px 0;
+}
+
+/* Изображение товара (уменьшено) */
+#cartsContainer .prod-card img,
+#favoritesContainer .prod-card img {
+  width: 120px; /* можно 100px, если хочешь компактнее */
+  height: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-right: 15px;
+}
+
+/* Контент справа от картинки */
+#cartsContainer .prod-card,
+#favoritesContainer .prod-card {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 20px;
+  border-bottom: 1px solid #eee;
+  padding: 10px 0;
+}
+
+/* Уменьшенное изображение */
+#cartsContainer .prod-card img,
+#favoritesContainer .prod-card img {
+  width: 120px;       /* можно 100px, если нужно компактнее */
+  height: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-right: 15px;
+  border-radius: 6px;
+}
+
+/* Контейнер информации */
+.prod-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+/* Левая часть: название и цена */
+.prod-info-left {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Правая часть: кнопки */
+.prod-info-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+/* Кнопки чуть компактнее */
+.prod-info-right .btn {
+  min-width: 160px;
+  font-size: 0.85rem;
+  padding: 4px 10px;
+}
+
+/* Небольшой hover-эффект для красоты */
+.prod-info-right .btn:hover {
+  transform: scale(1.03);
+  transition: transform 0.15s ease-in-out;
+}

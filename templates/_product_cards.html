@@ -1,34 +1,30 @@
 {% for product in products %}
-<div class="col-md-4 prod-card">
-  <div class="card">
-  
-    <!-- Изображение товара -->
-    <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
+<div class="prod-card">
+  <!-- Изображение товара -->
+  <img src="{{ product.image_url }}" alt="{{ product.name }}">
 
-    <div class="card-body">
-      <!-- Название и ссылка на товар -->
-      <h5 class="card-title">
-        <a href="{{ url_for('product_page', slug=product.slug) }}">{{ product.name }}</a>
+  <!-- Информация и кнопки -->
+  <div class="prod-info">
+    <!-- Левая часть: название и цена -->
+    <div class="prod-info-left">
+      <h5 class="card-title mb-1">
+        <a href="{{ url_for('product_page', slug=product.slug) }}" class="text-decoration-none text-dark">
+          {{ product.name }}
+        </a>
       </h5>
+      <p class="card-text text-muted mb-2">
+        {{ "%.2f"|format(product.price) }} ₽
+      </p>
+    </div>
 
-      <!-- Цена -->
-      <p class="card-text">{{ "%.2f"|format(product.price) }} ₽</p>
-
-      <!-- Кнопка "Избранное" -->
-
-
+    <!-- Правая часть: кнопки -->
+    <div class="prod-info-right">
       <button class="btn btn-outline-warning favoriteBtn" data-id="{{ product.id }}">
         ☆ Добавить в избранное
       </button>
-
-      <!-- Кнопка "Корзина" -->
-
-
       <button class="btn btn-outline-warning cartBtn" data-id="{{ product.id }}">
         ☆ Добавить в корзину
       </button>
-
-
     </div>
   </div>
 </div>
