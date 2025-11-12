@@ -1,0 +1,35 @@
+{% for product in products %}
+<div class="prod-card" data-id="{{ product.id }}" data-price="{{ product.price }}">
+  <!-- Изображение -->
+  <img src="{{ product.image_url }}" alt="{{ product.name }}">
+
+  <!-- Название -->
+  <h5 class="prod-name mb-0">
+    <a href="{{ url_for('product_page', slug=product.slug) }}" class="text-decoration-none text-dark">
+      {{ product.name }}
+    </a>
+  </h5>
+
+  <!-- Цена -->
+  <p class="prod-price mb-0">{{ "%.2f"|format(product.price) }} ₽</p>
+
+  <!-- Блок количества -->
+  <div class="quantity-controls">
+    <button class="btn btn-sm btn-outline-secondary qty-minus">−</button>
+    <input type="text" class="qty-input" value="1" readonly>
+    <button class="btn btn-sm btn-outline-secondary qty-plus">+</button>
+  </div>
+
+  <!-- Общая сумма -->
+  <p class="prod-total mb-0"><span class="total-value">{{ "%.2f"|format(product.price) }}</span> ₽</p>
+
+  <!-- Кнопки избранного и корзины -->
+  <button class="btn btn-outline-warning favoriteBtn" data-id="{{ product.id }}">
+    ☆ Добавить в избранное
+  </button>
+
+  <button class="btn btn-outline-warning cartBtn" data-id="{{ product.id }}">
+    ★ В корзине
+  </button>
+</div>
+{% endfor %}

@@ -7,7 +7,7 @@ from config import Config
 from models import db, Product, Category
 import logging
 import os
-from templates.admin import ProductAdmin
+from admin import ProductAdmin
 
 def create_app():
     app = Flask(__name__)

@@ -1,31 +1,42 @@
-{% for product in products %}
-<div class="prod-card">
-  <!-- Изображение товара -->
-  <img src="{{ product.image_url }}" alt="{{ product.name }}">
+<div id="cartsContainer">
+  {% for product in products %}
+  <div class="prod-card" data-id="{{ product.id }}" data-price="{{ product.price }}">
+    <!-- Изображение -->
+    <img src="{{ product.image_url }}" alt="{{ product.name }}">
 
-  <!-- Информация и кнопки -->
-  <div class="prod-info">
-    <!-- Левая часть: название и цена -->
-    <div class="prod-info-left">
-      <h5 class="card-title mb-1">
-        <a href="{{ url_for('product_page', slug=product.slug) }}" class="text-decoration-none text-dark">
-          {{ product.name }}
-        </a>
-      </h5>
-      <p class="card-text text-muted mb-2">
-        {{ "%.2f"|format(product.price) }} ₽
-      </p>
+    <!-- Название -->
+    <h5 class="prod-name mb-0">
+      <a href="{{ url_for('product_page', slug=product.slug) }}" class="text-decoration-none text-dark">
+        {{ product.name }}
+      </a>
+    </h5>
+
+    <!-- Цена -->
+    <p class="prod-price mb-0">{{ "%.2f"|format(product.price) }} ₽</p>
+
+    <!-- Блок количества -->
+    <div class="quantity-controls">
+      <button class="btn btn-sm btn-outline-secondary qty-minus">−</button>
+      <input type="text" class="qty-input" value="1" readonly>
+      <button class="btn btn-sm btn-outline-secondary qty-plus">+</button>
     </div>
 
-    <!-- Правая часть: кнопки -->
-    <div class="prod-info-right">
-      <button class="btn btn-outline-warning favoriteBtn" data-id="{{ product.id }}">
-        ☆ Добавить в избранное
-      </button>
-      <button class="btn btn-outline-warning cartBtn" data-id="{{ product.id }}">
-        ☆ Добавить в корзину
-      </button>
-    </div>
+    <!-- Общая сумма по товару -->
+    <p class="prod-total mb-0"><span class="total-value">{{ "%.2f"|format(product.price) }}</span> ₽</p>
+
+    <!-- Кнопки -->
+    <button class="btn btn-outline-warning favoriteBtn" data-id="{{ product.id }}">
+      ☆ Добавить в избранное
+    </button>
+
+    <button class="btn btn-outline-warning cartBtn" data-id="{{ product.id }}">
+      ★ В корзине
+    </button>
+  </div>
+  {% endfor %}
+
+  <!-- === Итоговая сумма по всем товарам === -->
+  <div id="cartTotalContainer">
+    Итого: <span id="cartTotalValue">0.00</span> ₽
   </div>
 </div>
-{% endfor %}

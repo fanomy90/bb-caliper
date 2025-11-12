@@ -1,0 +1,208 @@
+(function(window) {
+  window.BBCart = {};
+
+  // --- Обновление блока с суммой заказа ---
+  BBCart.updateCartSum = function() {
+    const totalElems = document.querySelectorAll(".prod-card [data-price]");
+    const total = [...totalElems]
+      .map(el => parseFloat(el.dataset.price))
+      .reduce((a, b) => a + b, 0);
+
+    const sumElem = document.getElementById("cartSum");
+    const totalElem = document.getElementById("cartTotal");
+
+    if (sumElem) sumElem.textContent = total.toLocaleString("ru-RU") + " ₽";
+    if (totalElem) totalElem.textContent = total.toLocaleString("ru-RU") + " ₽";
+  };
+
+  // --- Обновление блока с доставкой и оплатой ---
+  BBCart.updateDeliveryPaymentInfo = function() {
+    // --- Блок доставки ---
+    const cityText = document.getElementById("cartCityText");
+    if (cityText) {
+      const deliveryRadio = document.querySelector('input[name="delivery"]:checked');
+      if (deliveryRadio) {
+        if (deliveryRadio.id === "pickup") {
+          cityText.textContent = "Самовывоз — Москва, ул. Барышиха 14";
+        } else {
+          const city = document.querySelector('input[name="city"]').value || "";
+          const street = document.querySelector('input[name="street"]').value || "";
+          const house = document.querySelector('input[name="house"]').value || "";
+          const apt = document.querySelector('input[name="apt"]').value || "";
+
+          let addr = `Доставка по адресу: ${city}`;
+          if (street) addr += `, ${street}`;
+          if (house) addr += `, д. ${house}`;
+          if (apt) addr += `, кв/офис ${apt}`;
+          cityText.textContent = addr;
+        }
+      }
+    }
+
+    // --- Блок оплаты ---
+    const creditCheck = document.getElementById("creditCheck");
+    const paymentRadios = document.querySelectorAll('input[name="payment"]');
+    let paymentText = "";
+
+    if (creditCheck && creditCheck.checked) {
+      paymentText = "Оплата: в кредит через Тинькофф";
+    } else {
+      paymentRadios.forEach(radio => {
+        if (radio.checked) {
+          const label = document.querySelector(`label[for="${radio.id}"]`);
+          if (label) paymentText = "Оплата: " + label.textContent;
+        }
+      });
+    }
+
+    // --- Создаём/обновляем блок для информации ---
+    let infoBlock = document.getElementById("cartDeliveryPaymentInfo");
+    if (!infoBlock) {
+      infoBlock = document.createElement("div");
+      infoBlock.id = "cartDeliveryPaymentInfo";
+      infoBlock.className = "mt-2 mb-2 small text-muted";
+
+      const totalContainer = document.getElementById("cartTotal")?.parentElement;
+      if (totalContainer) {
+        totalContainer.insertBefore(infoBlock, totalContainer.firstChild);
+      }
+    }
+
+    infoBlock.textContent = paymentText;
+  };
+
+  // --- Загрузка корзины ---
+  BBCart.loadCarts = async function() {
+    const container = document.getElementById("cartsContainer");
+    if (!container) return;
+
+    const carts = BBUtils.getCarts();
+    if (!carts.length) {
+      container.innerHTML = "<p>Ваша корзина пуста.</p>";
+      BBCart.updateCartSum();
+      BBCart.updateDeliveryPaymentInfo();
+      return;
+    }
+
+    container.innerHTML = "<p>Загрузка корзины товаров...</p>";
+    const query = carts.join(",");
+    try {
+      const res = await fetch(`/carts/cards?ids=${encodeURIComponent(query)}`);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const html = await res.text();
+      container.innerHTML = html;
+
+      // обновляем кнопки и сумму
+      if (window.BBUtils) {
+        BBUtils.updateAllFavoriteButtons?.();
+        BBUtils.updateAllCartButtons?.();
+        BBUtils.updateCartTotal?.();
+      }
+
+      BBCart.updateCartSum();
+      BBCart.updateDeliveryPaymentInfo();
+    } catch (err) {
+      console.error("Ошибка загрузки carts cards:", err);
+      container.innerHTML = "<p>Ошибка загрузки товаров корзины.</p>";
+    }
+  };
+
+  // --- Обработка кликов по кнопкам корзины ---
+  BBCart.handleCartClick = function(e) {
+    const cartBtn = e.target.closest(".cartBtn");
+    if (!cartBtn) return false;
+
+    e.preventDefault();
+    const id = String(cartBtn.dataset.id);
+    let carts = BBUtils.getCarts();
+    if (carts.includes(id)) carts = carts.filter(x => x !== id);
+    else carts.push(id);
+    BBUtils.saveCarts(carts);
+    BBUtils.updateButtonVisual(cartBtn);
+
+    if (window.location.pathname.startsWith("/carts")) {
+      const card = cartBtn.closest(".prod-card");
+      if (card) card.remove();
+      const container = document.getElementById("cartsContainer");
+      if (container && BBUtils.getCarts().length === 0)
+        container.innerHTML = "<p>В корзине теперь пусто.</p>";
+
+      BBUtils.updateCartTotal();
+      BBCart.updateCartSum();
+      BBCart.updateDeliveryPaymentInfo();
+    }
+    return true;
+  };
+
+  // --- Обработка изменения количества ---
+  BBCart.handleQuantityClick = function(e) {
+    const minusBtn = e.target.closest(".qty-minus");
+    const plusBtn = e.target.closest(".qty-plus");
+    if (!minusBtn && !plusBtn) return false;
+
+    const card = e.target.closest(".prod-card");
+    const input = card.querySelector(".qty-input");
+    const totalElem = card.querySelector(".total-value");
+    const price = parseFloat(card.dataset.price);
+    const id = String(card.dataset.id);
+    let qty = parseInt(input.value);
+
+    if (minusBtn) qty = Math.max(0, qty - 1);
+    if (plusBtn) qty += 1;
+
+    input.value = qty;
+    totalElem.textContent = (price * qty).toFixed(2);
+
+    let carts = BBUtils.getCarts();
+    if (qty === 0) {
+      carts = carts.filter(x => x !== id);
+      card.remove();
+    } else if (!carts.includes(id)) {
+      carts.push(id);
+    }
+    BBUtils.saveCarts(carts);
+
+    const container = document.getElementById("cartsContainer");
+    if (container && carts.length === 0)
+      container.innerHTML = "<p>В корзине теперь пусто.</p>";
+
+    BBUtils.updateCartTotal();
+    BBCart.updateCartSum();
+    BBCart.updateDeliveryPaymentInfo();
+    return true;
+  };
+
+  // --- Автоматическое обновление блока при изменении данных ---
+  document.addEventListener("change", e => {
+    if (
+      ["delivery", "city", "street", "house", "apt", "payment"].includes(e.target.name) ||
+      e.target.id === "creditCheck"
+    ) {
+      BBCart.updateDeliveryPaymentInfo();
+    }
+  });
+
+  // --- Реакция на ввод адреса (живое обновление) ---
+  document.addEventListener("input", e => {
+    if (["city", "street", "house", "apt"].includes(e.target.name)) {
+      BBCart.updateDeliveryPaymentInfo();
+    }
+  });
+
+  // --- Обработка отправки формы ---
+  document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("checkoutForm");
+    if (form) {
+      form.addEventListener("submit", async e => {
+        e.preventDefault();
+        alert("Заказ оформлен! Спасибо за покупку.");
+        localStorage.removeItem("carts");
+        window.location.href = "/";
+      });
+    }
+
+    // При первой загрузке страницы
+    BBCart.loadCarts();
+  });
+
+})(window);
