@@ -2,42 +2,45 @@
   window.BBCart = {};
 
   // --- Обновление блока с суммой заказа ---
-  BBCart.updateCartSum = function() {
-    const totalElems = document.querySelectorAll(".prod-card [data-price]");
-    const total = [...totalElems]
-      .map(el => parseFloat(el.dataset.price))
-      .reduce((a, b) => a + b, 0);
+  // BBCart.updateCartSum = function() {
+    // const totalElems = document.querySelectorAll(".prod-card [data-price]");
+    // const total = [...totalElems]
+    //   .map(el => parseFloat(el.dataset.price))
+    //   .reduce((a, b) => a + b, 0);
 
-    const sumElem = document.getElementById("cartSum");
-    const totalElem = document.getElementById("cartTotal");
+    // const sumElem = document.getElementById("cartSum");
+    // const totalElem = document.getElementById("cartTotal");
 
-    if (sumElem) sumElem.textContent = total.toLocaleString("ru-RU") + " ₽";
-    if (totalElem) totalElem.textContent = total.toLocaleString("ru-RU") + " ₽";
-  };
+    // if (sumElem) sumElem.textContent = total.toLocaleString("ru-RU") + " ₽";
+    // if (totalElem) totalElem.textContent = total.toLocaleString("ru-RU") + " ₽";
+  // };
 
   // --- Обновление блока с доставкой и оплатой ---
   BBCart.updateDeliveryPaymentInfo = function() {
     // --- Блок доставки ---
-    const cityText = document.getElementById("cartCityText");
-    if (cityText) {
-      const deliveryRadio = document.querySelector('input[name="delivery"]:checked');
-      if (deliveryRadio) {
-        if (deliveryRadio.id === "pickup") {
-          cityText.textContent = "Самовывоз — Москва, ул. Барышиха 14";
-        } else {
-          const city = document.querySelector('input[name="city"]').value || "";
-          const street = document.querySelector('input[name="street"]').value || "";
-          const house = document.querySelector('input[name="house"]').value || "";
-          const apt = document.querySelector('input[name="apt"]').value || "";
+    const deliveryRadios = document.querySelector('input[name="delivery"]:checked');
+    let deliveryText = "";
+    if (deliveryRadios) {
+      if (deliveryRadios.id === "pickup") {
+        deliveryText = "Самовывоз — Москва, ул. Барышиха 14";
+      } else {
+        const city = document.querySelector('input[name="city"]').value || "";
+        const street = document.querySelector('input[name="street"]').value || "";
+        const house = document.querySelector('input[name="house"]').value || "";
+        const apt = document.querySelector('input[name="apt"]').value || "";
+        const comment = document.querySelector('[name="comment"]')?.value.trim() || "";
 
-          let addr = `Доставка по адресу: ${city}`;
-          if (street) addr += `, ${street}`;
-          if (house) addr += `, д. ${house}`;
-          if (apt) addr += `, кв/офис ${apt}`;
-          cityText.textContent = addr;
-        }
+        let addr = `Доставка по адресу: ${city}`;
+        if (street) addr += `, ул. ${street}`;
+        if (house) addr += `, д. ${house}`;
+        if (apt) addr += `, кв/офис ${apt}`;
+        if (comment) addr += `, доп.инф.: ${comment}`;
+        deliveryText = addr;
       }
     }
+    // --- Создаём/обновляем блок для информации ---
+    const deliveryBlock = document.getElementById("cartCityText");
+    deliveryBlock.textContent = deliveryText;
 
     // --- Блок оплаты ---
     const creditCheck = document.getElementById("creditCheck");
@@ -56,19 +59,22 @@
     }
 
     // --- Создаём/обновляем блок для информации ---
-    let infoBlock = document.getElementById("cartDeliveryPaymentInfo");
-    if (!infoBlock) {
-      infoBlock = document.createElement("div");
-      infoBlock.id = "cartDeliveryPaymentInfo";
-      infoBlock.className = "mt-2 mb-2 small text-muted";
+    let paymentBlock = document.getElementById("cartPaymentText");
+    paymentBlock.textContent = paymentText;
 
-      const totalContainer = document.getElementById("cartTotal")?.parentElement;
-      if (totalContainer) {
-        totalContainer.insertBefore(infoBlock, totalContainer.firstChild);
-      }
-    }
+    // let infoBlock = document.getElementById("cartDeliveryPaymentInfo");
+    // if (!infoBlock) {
+    //   infoBlock = document.createElement("div");
+    //   infoBlock.id = "cartDeliveryPaymentInfo";
+    //   infoBlock.className = "mt-2 mb-2 small text-muted";
 
-    infoBlock.textContent = paymentText;
+    //   const totalContainer = document.getElementById("cartTotal")?.parentElement;
+    //   if (totalContainer) {
+    //     totalContainer.insertBefore(infoBlock, totalContainer.firstChild);
+    //   }
+    // }
+
+    // infoBlock.textContent = paymentText;
   };
 
   // --- Загрузка корзины ---
@@ -79,7 +85,7 @@
     const carts = BBUtils.getCarts();
     if (!carts.length) {
       container.innerHTML = "<p>Ваша корзина пуста.</p>";
-      BBCart.updateCartSum();
+      // BBCart.updateCartSum();
       BBCart.updateDeliveryPaymentInfo();
       return;
     }
@@ -99,7 +105,7 @@
         BBUtils.updateCartTotal?.();
       }
 
-      BBCart.updateCartSum();
+      // BBCart.updateCartSum();
       BBCart.updateDeliveryPaymentInfo();
     } catch (err) {
       console.error("Ошибка загрузки carts cards:", err);
@@ -128,7 +134,7 @@
         container.innerHTML = "<p>В корзине теперь пусто.</p>";
 
       BBUtils.updateCartTotal();
-      BBCart.updateCartSum();
+      // BBCart.updateCartSum();
       BBCart.updateDeliveryPaymentInfo();
     }
     return true;
@@ -167,7 +173,7 @@
       container.innerHTML = "<p>В корзине теперь пусто.</p>";
 
     BBUtils.updateCartTotal();
-    BBCart.updateCartSum();
+    // BBCart.updateCartSum();
     BBCart.updateDeliveryPaymentInfo();
     return true;
   };
@@ -175,7 +181,7 @@
   // --- Автоматическое обновление блока при изменении данных ---
   document.addEventListener("change", e => {
     if (
-      ["delivery", "city", "street", "house", "apt", "payment"].includes(e.target.name) ||
+      ["delivery", "city", "street", "house", "apt", "payment", "comment"].includes(e.target.name) ||
       e.target.id === "creditCheck"
     ) {
       BBCart.updateDeliveryPaymentInfo();
@@ -184,7 +190,7 @@
 
   // --- Реакция на ввод адреса (живое обновление) ---
   document.addEventListener("input", e => {
-    if (["city", "street", "house", "apt"].includes(e.target.name)) {
+    if (["city", "street", "house", "apt", "comment"].includes(e.target.name)) {
       BBCart.updateDeliveryPaymentInfo();
     }
   });

@@ -54,6 +54,8 @@
       if (!isNaN(val)) sum += val;
     });
 
+    // --- Обновление блока с суммой заказа ---
+
     const totalElem = document.getElementById("cartTotalValue");
     if (totalElem) totalElem.textContent = sum.toFixed(2);
 
