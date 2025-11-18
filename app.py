@@ -7,7 +7,9 @@ from config import Config
 from models import db, Product, Category
 import logging
 import os
-from templates.admin import ProductAdmin
+from models import db, Product, Category, Order, OrderItem, Customer
+from admin import ProductAdmin, CustomerAdmin, OrderAdmin, OrderItemAdmin
+
 
 def create_app():
     app = Flask(__name__)
@@ -27,6 +29,9 @@ def create_app():
     admin.add_view(ModelView(Category, db.session))
     # admin.add_view(ModelView(Product, db.session))
     admin.add_view(ProductAdmin(Product, db.session))
+    admin.add_view(CustomerAdmin(Customer, db.session))
+    admin.add_view(OrderAdmin(Order, db.session))
+    #admin.add_view(OrderItemAdmin(OrderItem, db.session))
 
     @app.route('/')
     def index():
