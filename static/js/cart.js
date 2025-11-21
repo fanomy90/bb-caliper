@@ -1,20 +1,6 @@
 (function(window) {
   window.BBCart = {};
 
-  // --- Обновление блока с суммой заказа ---
-  // BBCart.updateCartSum = function() {
-    // const totalElems = document.querySelectorAll(".prod-card [data-price]");
-    // const total = [...totalElems]
-    //   .map(el => parseFloat(el.dataset.price))
-    //   .reduce((a, b) => a + b, 0);
-
-    // const sumElem = document.getElementById("cartSum");
-    // const totalElem = document.getElementById("cartTotal");
-
-    // if (sumElem) sumElem.textContent = total.toLocaleString("ru-RU") + " ₽";
-    // if (totalElem) totalElem.textContent = total.toLocaleString("ru-RU") + " ₽";
-  // };
-
   // --- Обновление блока с доставкой и оплатой ---
   BBCart.updateDeliveryPaymentInfo = function() {
     // --- Блок доставки ---
@@ -38,9 +24,9 @@
         deliveryText = addr;
       }
     }
-    // --- Создаём/обновляем блок для информации ---
+
     const deliveryBlock = document.getElementById("cartCityText");
-    deliveryBlock.textContent = deliveryText;
+    if (deliveryBlock) deliveryBlock.textContent = deliveryText;
 
     // --- Блок оплаты ---
     const creditCheck = document.getElementById("creditCheck");
@@ -58,23 +44,8 @@
       });
     }
 
-    // --- Создаём/обновляем блок для информации ---
-    let paymentBlock = document.getElementById("cartPaymentText");
-    paymentBlock.textContent = paymentText;
-
-    // let infoBlock = document.getElementById("cartDeliveryPaymentInfo");
-    // if (!infoBlock) {
-    //   infoBlock = document.createElement("div");
-    //   infoBlock.id = "cartDeliveryPaymentInfo";
-    //   infoBlock.className = "mt-2 mb-2 small text-muted";
-
-    //   const totalContainer = document.getElementById("cartTotal")?.parentElement;
-    //   if (totalContainer) {
-    //     totalContainer.insertBefore(infoBlock, totalContainer.firstChild);
-    //   }
-    // }
-
-    // infoBlock.textContent = paymentText;
+    const paymentBlock = document.getElementById("cartPaymentText");
+    if (paymentBlock) paymentBlock.textContent = paymentText;
   };
 
   // --- Загрузка корзины ---
@@ -85,7 +56,6 @@
     const carts = BBUtils.getCarts();
     if (!carts.length) {
       container.innerHTML = "<p>Ваша корзина пуста.</p>";
-      // BBCart.updateCartSum();
       BBCart.updateDeliveryPaymentInfo();
       return;
     }
@@ -98,14 +68,11 @@
       const html = await res.text();
       container.innerHTML = html;
 
-      // обновляем кнопки и сумму
       if (window.BBUtils) {
         BBUtils.updateAllFavoriteButtons?.();
         BBUtils.updateAllCartButtons?.();
-        BBUtils.updateCartTotal?.();
       }
 
-      // BBCart.updateCartSum();
       BBCart.updateDeliveryPaymentInfo();
     } catch (err) {
       console.error("Ошибка загрузки carts cards:", err);
@@ -133,8 +100,6 @@
       if (container && BBUtils.getCarts().length === 0)
         container.innerHTML = "<p>В корзине теперь пусто.</p>";
 
-      BBUtils.updateCartTotal();
-      // BBCart.updateCartSum();
       BBCart.updateDeliveryPaymentInfo();
     }
     return true;
@@ -172,8 +137,6 @@
     if (container && carts.length === 0)
       container.innerHTML = "<p>В корзине теперь пусто.</p>";
 
-    BBUtils.updateCartTotal();
-    // BBCart.updateCartSum();
     BBCart.updateDeliveryPaymentInfo();
     return true;
   };
@@ -188,24 +151,65 @@
     }
   });
 
-  // --- Реакция на ввод адреса (живое обновление) ---
   document.addEventListener("input", e => {
     if (["city", "street", "house", "apt", "comment"].includes(e.target.name)) {
       BBCart.updateDeliveryPaymentInfo();
     }
   });
 
-  // --- Обработка отправки формы ---
+  // --- Отправка оформления заказа ---
   document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("checkoutForm");
-    if (form) {
-      form.addEventListener("submit", async e => {
-        e.preventDefault();
-        alert("Заказ оформлен! Спасибо за покупку.");
-        localStorage.removeItem("carts");
-        window.location.href = "/";
+    if (!form) return;
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const carts = JSON.parse(localStorage.getItem("carts") || "[]");
+      if (!carts.length) {
+        alert("Корзина пуста!");
+        return;
+      }
+
+      const formData = new FormData(form);
+      const orderData = {
+        name: formData.get("name"),
+        email: formData.get("email"),
+        phone: formData.get("phone"),
+        city: formData.get("city"),
+        street: formData.get("street"),
+        house: formData.get("house"),
+        apt: formData.get("apt"),
+        comment: formData.get("comment"),
+        payment: document.querySelector("input[name=payment]:checked").id,
+        delivery: document.querySelector("input[name=delivery]:checked").id,
+        items: carts.map(id => ({id, quantity: 1}))  // передаём массив объектов
+      };
+
+      const res = await fetch("/api/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData)
       });
-    }
+
+      const data = await res.json();
+
+      if (res.status === 409 && data.duplicate) {
+        alert("Похоже, вы уже оформляли заказ ранее.\nНомер: " + data.order_number);
+        return;
+      }
+
+      if (!data.success) {
+        alert("Ошибка: " + data.error);
+        return;
+      }
+
+      // Очистка корзины
+      localStorage.removeItem("carts");
+
+      // Перенаправление на страницу благодарности
+      window.location.href = "/thanks?order=" + data.order_number;
+    });
 
     // При первой загрузке страницы
     BBCart.loadCarts();
