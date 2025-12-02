@@ -40,43 +40,44 @@
     <div class="row g-3 mt-1">
       <div class="col-md-6">
         <div class="form-check mt-4">
-          <input class="form-check-input" type="radio" name="delivery" id="pickup" checked>
+          <input class="form-check-input" type="radio" name="delivery" id="pickup" value="Самовывоз — Москва, ул. Барышиха 14 (от 14 дней)" checked>
           <label class="form-check-label" for="pickup">
             Самовывоз — Москва, ул. Барышиха 14 (от 14 дней)
           </label>
         </div>
         <div class="form-check mt-4">
-          <input class="form-check-input" type="radio" name="delivery" id="delivery">
+          <input class="form-check-input" type="radio" name="delivery" id="delivery" value="Доставка — Срок доставки 14-25 дней с момента оплаты заказа">
           <label class="form-check-label" for="delivery">
             Доставка — Срок доставки 14-25 дней с момента оплаты заказа.
           </label>
         </div>
       </div>
+      <div id="deliveryAddressBlock">
+        <div class="col-md-6">
+          <label class="form-label">Город</label>
+          <input type="text" name="city" class="form-control" placeholder="Haarlem">
+          <small class="text-muted d-block mt-1">Netherlands, Provincie Noord-Holland, Gemeente Haarlem, Haarlem</small>
+        </div>
 
-      <div class="col-md-6">
-        <label class="form-label">Город</label>
-        <input type="text" name="city" class="form-control" placeholder="Haarlem" required>
-        <small class="text-muted d-block mt-1">Netherlands, Provincie Noord-Holland, Gemeente Haarlem, Haarlem</small>
-      </div>
+        <div class="col-md-6">
+          <label class="form-label">Улица</label>
+          <input type="text" name="street" class="form-control">
+        </div>
 
-      <div class="col-md-6">
-        <label class="form-label">Улица</label>
-        <input type="text" name="street" class="form-control">
-      </div>
+        <div class="col-md-3">
+          <label class="form-label">Дом</label>
+          <input type="text" name="house" class="form-control">
+        </div>
 
-      <div class="col-md-3">
-        <label class="form-label">Дом</label>
-        <input type="text" name="house" class="form-control">
-      </div>
+        <div class="col-md-3">
+          <label class="form-label">Квартира / офис</label>
+          <input type="text" name="apt" class="form-control">
+        </div>
 
-      <div class="col-md-3">
-        <label class="form-label">Квартира / офис</label>
-        <input type="text" name="apt" class="form-control">
-      </div>
-
-      <div class="col-12">
-        <label class="form-label">Комментарий</label>
-        <textarea name="comment" class="form-control" rows="2" placeholder="Комментарий к заказу"></textarea>
+        <div class="col-12">
+          <label class="form-label">Комментарий</label>
+          <textarea name="comment" class="form-control" rows="2" placeholder="Комментарий к заказу"></textarea>
+        </div>
       </div>
     </div>
 
@@ -85,19 +86,19 @@
     <h4 class="mt-5 fw-bold">Способ оплаты</h4>
 
     <div class="form-check">
-      <input class="form-check-input" type="radio" name="payment" id="cashPay" checked>
+      <input class="form-check-input" type="radio" name="payment" id="cashPay" value="Наличными при получении" checked>
       <label class="form-check-label" for="cashPay">
         Наличными при получении
       </label>
     </div>
     <div class="form-check">
-      <input class="form-check-input" type="radio" name="payment" id="cardPay">
+      <input class="form-check-input" type="radio" name="payment" id="cardPay" value="Кредитной картой (Visa, Mastercard) через Tinkoff">
       <label class="form-check-label" for="cardPay">
         Кредитной картой (Visa, Mastercard) через Tinkoff
       </label>
     </div>
     <div class="form-check">
-      <input class="form-check-input" type="radio" name="payment" id="creditCheck">
+      <input class="form-check-input" type="radio" name="payment" id="creditCheck" value="Тинькофф / Оформить товар в кредит">
       <label class="form-check-label" for="creditCheck">
         Тинькофф / Оформить товар в кредит
       </label>

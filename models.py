@@ -62,6 +62,9 @@ class Customer(db.Model):
 
     def __repr__(self):
         return f"{self.name} ({self.phone})"
+    def __str__(self):
+        return f"{self.name} ({self.phone})"
+
 
 
 # === Заказы ===
@@ -88,7 +91,7 @@ class Order(db.Model):
     shipped_at = db.Column(db.DateTime)
     completed_at = db.Column(db.DateTime)
     returned_at = db.Column(db.DateTime)
-
+    # добавить отмену заказа
     # Связь с товарами (через промежуточную таблицу)
     items = db.relationship('OrderItem', backref='order', lazy=True, cascade="all, delete")
 
@@ -103,6 +106,14 @@ class Order(db.Model):
         """Генерация уникального номера заказа"""
         return 'ORD-' + ''.join(random.choices(string.digits, k=8))
 
+    #отображение телефона и почты покупателя в форме редактирования заказа
+    @property
+    def customer_phone(self):
+        return self.customer.phone if self.customer else ""
+
+    @property
+    def customer_email(self):
+        return self.customer.email if self.customer else ""
 
 
 # === Товары в заказе ===
