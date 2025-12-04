@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}О компании — BB-Caliper{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/about.css') }}">
+
+    <div class="hero">
+        <h1>УСЛОВИЯ ДОСТАВКИ И ОПЛАТЫ</h1>
+    </div>
+
+    <div class="container">
+        <h2>Доставка</h2>
+        <ul>
+            <li><strong>Доставка по РФ - фиксированная</strong> Стоимость 2800₽</li>
+            <li><strong>Доставка в СНГ</strong> Осуществляется транспортными компаниями Деловые линии, СДЭК, ПЭК или на ваш выбор. 
+            Стоимость доставки уточняйте на сайте выбранной Транспортной компании.</li>
+        </ul>
+
+        <h2>Оплата</h2>
+        <ul>
+            <li><strong>К оплате принимаются карты:</strong> VISA, MasterCard, МИР.</li>
+            <li><strong>Также:</strong> мы принимаем оплату по реквизитам юр. лица.</li>
+        </ul>
+
+        <div class="contact-block">
+            <a href="/contact">СВЯЖИТЕСЬ С НАМИ — ПОДБЕРЁМ СИСТЕМУ</a>
+        </div>
+
+    </div>
+    
+{% endblock %}
